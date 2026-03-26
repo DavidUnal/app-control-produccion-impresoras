@@ -1,0 +1,52 @@
+;===========================================================
+;  Instalador del Servidor - Control de Producción (Backend)
+;===========================================================
+
+[Setup]
+AppName=ControlProduccionGF - Servidor
+AppVersion=1.0
+DefaultDirName=C:\ControlProduccionGF_Server
+OutputDir=installer_output
+OutputBaseFilename=ControlProduccionGF_Server_Installer
+Compression=lzma
+SolidCompression=yes
+ArchitecturesInstallIn64BitMode=x64
+
+[Files]
+; Copiar backend completo
+Source: "backend\*"; DestDir: "{app}\backend"; Flags: recursesubdirs
+
+; Copiar requirements
+Source: "requirements.txt"; DestDir: "{app}"
+
+; Copiar plantilla .env del backend
+Source: "backend.env.plantilla"; DestDir: "{app}"
+
+; Copiar script run_backend_prod
+Source: "run_backend_prod.bat"; DestDir: "{app}"
+
+[Icons]
+Name: "{group}\Iniciar Backend (Manual)"; Filename: "{app}\run_backend_prod.bat"
+Name: "{group}\Carpeta de instalación"; Filename: "{app}"
+
+[Run]
+; Crear entorno virtual y ejecutar pip install
+Filename: "cmd.exe"; \
+  Parameters: "/c python -m venv ""{app}\.venv"""; \
+  StatusMsg: "Creando entorno virtual..."
+
+Filename: "cmd.exe"; \
+  Parameters: "/c ""{app}\.venv\Scripts\python.exe"" -m pip install --upgrade pip"; \
+  StatusMsg: "Actualizando pip..."
+
+Filename: "cmd.exe"; \
+  Parameters: "/c ""{app}\.venv\Scripts\pip.exe"" install -r ""{app}\requirements.txt"""; \
+  StatusMsg: "Instalando dependencias..."
+
+; Generar el archivo .env final basado en la plantilla y los parámetros elegidos
+Filename: "cmd.exe"; \
+  Parameters: "/c copy /y ""{app}\backend.env.plantilla"" ""{app}\.env"""; \
+  StatusMsg: "Generando archivo .env..."
+
+; Aquí luego agregaremos un script para reemplazar valores dentro del .env
+

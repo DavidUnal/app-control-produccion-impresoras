@@ -1,0 +1,39 @@
+@echo off
+title Control de Producción - Backend (Producción)
+echo ================================================
+echo   Iniciando Backend FastAPI en modo PRODUCCIÓN
+echo ================================================
+echo.
+
+REM --- Ir al directorio donde está este BAT ---
+cd /d "%~dp0"
+
+REM --- Activar entorno virtual ---
+echo Activando entorno virtual...
+call .venv\Scripts\activate
+if errorlevel 1 (
+    echo ERROR: No se pudo activar el entorno virtual.
+    echo Verifica que .venv exista y que Python esté instalado.
+    pause
+    exit /b
+)
+
+REM --- Cargar variables del archivo .env ---
+echo Cargando variables de entorno desde .env ...
+for /f "usebackq tokens=1,* delims==" %%A in (".env") do (
+    set "%%A=%%B"
+)
+
+REM --- Confirmar variables necesarias ---
+if "%APP_HOST%"=="" set APP_HOST=0.0.0.0
+if "%APP_PORT%"=="" set APP_PORT=8000
+
+echo Backend escuchará en: http://%APP_HOST%:%APP_PORT%
+echo.
+
+REM --- Iniciar Uvicorn ---
+echo Iniciando servidor FastAPI...
+uvicorn backend.server:app --host %APP_HOST% --port %APP_PORT%
+echo.
+
+pause
